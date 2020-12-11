@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.androidseries"
-        minSdkVersion 16
+        minSdkVersion 28
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -27,15 +27,14 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
-configurations.all {
-    resolutionStrategy.force 'junit:junit:4.12'
-}
+
 
 dependencies {
-    //compile 'org.deeplearning4j:deeplearning4j-core:0.7.2'
-    //compile 'org.nd4j:nd4j-native:0.7.2'
-    //compile 'org.nd4j:nd4j-native:0.7.2:android-x86'
-    //compile 'org.nd4j:nd4j-native:0.7.2:android-arm'
+
+    implementation 'org.deeplearning4j:deeplearning4j-core:0.8.0'
+    implementation 'org.nd4j:nd4j-native:0.8.0'
+    implementation 'org.nd4j:nd4j-native:0.8.0:android-x86'
+    implementation 'org.nd4j:nd4j-native:0.8.0:android-arm'
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
@@ -49,7 +48,7 @@ dependencies {
         exclude group: 'org.bytedeco', module: 'leptonica-platform'
         exclude group: 'org.bytedeco', module: 'hdf5-platform'
     }
-    implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6'
+    implementation  group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6'
     implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6', classifier: "android-arm"
     implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6', classifier: "android-arm64"
     implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6', classifier: "android-x86"

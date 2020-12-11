@@ -3,9 +3,12 @@ buildscript {
     repositories {
         google()
         jcenter()
+        maven {
+            url "https://maven.google.com"
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.1'
+        classpath 'com.android.tools.build:gradle:4.1.0'
 
 
 
@@ -16,15 +19,16 @@ buildscript {
 }
 //
 
-configurations.all {
-    resolutionStrategy.force 'junit:junit:4.12'
-}
+
 
 //
 allprojects {
     repositories {
         google()
         jcenter()
+        maven {
+            url "https://maven.google.com"
+        }
     }
 }
 
