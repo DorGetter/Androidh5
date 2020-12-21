@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.SurfaceView;
 import android.widget.Toast;
 
+import org.deeplearning4j.nn.modelimport.keras.InvalidKerasConfigurationException;
+import org.deeplearning4j.nn.modelimport.keras.UnsupportedKerasConfigurationException;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
@@ -14,6 +16,8 @@ import org.opencv.core.Mat;
 import org.opencv.features2d.*;
 import org.opencv.dnn.Net;
 import org.opencv.imgproc.Imgproc;
+
+import java.io.IOException;
 
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
@@ -29,6 +33,23 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         cameraBridgeViewBase = (JavaCameraView) findViewById(R.id.CameraView);
         cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
         cameraBridgeViewBase.setCvCameraViewListener(this);
+
+        CameraBridgeViewBase.CvCameraViewFrame inputFrame = null;
+        Mat mat = onCameraFrame(inputFrame);
+
+        try {
+            Model model = new Model();
+            model.fit(model.model);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidKerasConfigurationException e) {
+            e.printStackTrace();
+        } catch (UnsupportedKerasConfigurationException e) {
+            e.printStackTrace();
+        }
+
+
+
 
         baseLoaderCallback = new BaseLoaderCallback(this) {
             @Override
