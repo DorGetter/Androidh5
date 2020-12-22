@@ -1,125 +1,102 @@
 package com.example.androidseries;
 
-import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.res.AssetFileDescriptor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.view.SurfaceView;
-import android.widget.Toast;
+import android.util.Base64;
+import android.widget.Button;
+import android.widget.ImageView;
 
-import org.deeplearning4j.nn.modelimport.keras.InvalidKerasConfigurationException;
-import org.deeplearning4j.nn.modelimport.keras.UnsupportedKerasConfigurationException;
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.JavaCameraView;
-import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.features2d.*;
-import org.opencv.dnn.Net;
-import org.opencv.imgproc.Imgproc;
+import androidx.appcompat.app.AppCompatActivity;
 
+import com.chaquo.python.PyObject;
+import com.chaquo.python.Python;
+import com.chaquo.python.android.AndroidPlatform;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+
+public class MainActivity extends AppCompatActivity {
 
 
-public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
+    Button btn;
+    ImageView iv;
+    BitmapDrawable drawable;
+    Bitmap bitmap;
+    String imageString = "";
 
-    CameraBridgeViewBase    cameraBridgeViewBase ;
-    BaseLoaderCallback      baseLoaderCallback;  // allows as to get the frames from the camera
-    int counter = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        cameraBridgeViewBase = (JavaCameraView) findViewById(R.id.CameraView);
-        cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
-        cameraBridgeViewBase.setCvCameraViewListener(this);
+        btn = (Button) findViewById(R.id.submit);
 
-        CameraBridgeViewBase.CvCameraViewFrame inputFrame = null;
-        Mat mat = onCameraFrame(inputFrame);
-
-        try {
-            Model model = new Model();
-            model.fit(model.model);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidKerasConfigurationException e) {
-            e.printStackTrace();
-        } catch (UnsupportedKerasConfigurationException e) {
-            e.printStackTrace();
-        }
+        iv = (ImageView) findViewById(R.id.image_view);
 
 
+        if (!Python.isStarted())
+            Python.start(new AndroidPlatform(this));
+
+        final Python py = Python.getInstance();
 
 
-        baseLoaderCallback = new BaseLoaderCallback(this) {
-            @Override
-            public void onManagerConnected(int status) {
-                super.onManagerConnected(status);
-                switch (status){
-                    case BaseLoaderCallback.SUCCESS:
-                        cameraBridgeViewBase.enableView();
-                        break;
-                    default:
-                        super.onManagerConnected(status);
-                        break;
-                }
-            }
-        };
+        btn.setOnClickListener((v) -> {
+
+            drawable = (BitmapDrawable) iv.getDrawable();
+            bitmap = drawable.getBitmap();
+            imageString = getStringImage(bitmap);
+
+//            PyObject pyo = py.getModule("find_lanes");
+//            PyObject obj = pyo.callAttr("main", imageString);
+//
+//            String str = obj.toString();
+//            byte data[] = android.util.Base64.decode(str, Base64.DEFAULT);
+//            Bitmap bmp = BitmapFactory.decodeByteArray(data,0,data.length);
+//
+//            iv.setImageBitmap(bmp);
+
+
+            PyObject pyo = py.getModule("testModel");
+            PyObject obj = pyo.callAttr("main", imageString);
+            float steering_angle = obj.toFloat();
+            System.out.println("steering:");
+            System.out.println(steering_angle);
+
+        });
     }
 
-    // this is the important one...
-    // getting frames from camera before showing it.
-    // here need to implement the logic's. processing media
-    // Mat is the metrics of the frame. 20/30 fps
-    @Override
-    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
-        Mat frame = inputFrame.rgba();
 
-//        if(counter % 20 == 0){
-//            Core.flip(frame, frame, 1);
-//            Imgproc.cvtColor(frame, frame, Imgproc.COLOR_RGBA2GRAY);
-//        }
-        Imgproc.cvtColor(frame, frame, Imgproc.COLOR_RGBA2GRAY);
-        Imgproc.Canny(frame, frame, 100 ,80);
-        counter = counter+1;
+    private String getStringImage(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100,baos);
 
-        return frame;
+        byte[] imageBytes = baos.toByteArray();
+        String encodedImage = android.util.Base64.encodeToString(imageBytes, Base64.DEFAULT);
+        return encodedImage;
     }
 
-    @Override
-    public void onCameraViewStarted(int width, int height) {
 
+
+
+
+    private MappedByteBuffer loadModelFile() throws IOException {
+        AssetFileDescriptor assetFileDescriptor = this.getAssets().openFd("model.tflite");
+        FileInputStream fileInputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
+        FileChannel fileChannel = fileInputStream.getChannel();
+        long startoffset = assetFileDescriptor.getStartOffset();
+        long length = assetFileDescriptor.getLength();
+
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startoffset, length);
     }
 
-    @Override
-    public void onCameraViewStopped() {
 
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if(!OpenCVLoader.initDebug()){
-            Toast.makeText(getApplicationContext(), "there's a problem!", Toast.LENGTH_LONG).show();
-        }else{
-            baseLoaderCallback.onManagerConnected(baseLoaderCallback.SUCCESS);
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if(cameraBridgeViewBase!=null){
-            cameraBridgeViewBase.disableView();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(cameraBridgeViewBase!=null){
-            cameraBridgeViewBase.disableView();
-        }
-    }
 }

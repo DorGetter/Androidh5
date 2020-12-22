@@ -1,5 +1,7 @@
 plugins {
     id 'com.android.application'
+    id 'com.chaquo.python'
+
 }
 
 android {
@@ -14,6 +16,24 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters "armeabi-v7a", "x86"
+        }
+        python{
+            buildPython "C:/Users/dor/AppData/Local/Programs/Python/Python38/python.exe"
+        }
+
+        python{
+            pip{
+                install "opencv-contrib-python-headless"
+                install "pillow"
+                install "face_recognition"
+                install "matplotlib"
+                install "tensorflow"
+                install "h5py"
+            }
+        }
     }
 
     buildTypes {
@@ -26,15 +46,78 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-}
+    aaptOptions {
+        noCompress "tflite"
+        noCompress "lite"
+    }
+
+
+    packagingOptions {
+        pickFirst 'org/bytedeco/javacpp/windows-x86/msvcp120.dll'
+        pickFirst 'org/bytedeco/javacpp/windows-x86_64/msvcp120.dll'
+        pickFirst 'lib/x86/liblept.so'
+        pickFirst 'lib/x86/libjnicvkernels.so'
+        pickFirst 'lib/x86/libopencv_videoio.so'
+        pickFirst 'lib/x86/libjniopencv_ml.so'
+        pickFirst 'lib/x86/libopencv_videostab.so'
+        pickFirst 'lib/x86/libopencv_ximgproc.so'
+        pickFirst 'lib/x86/libjniopencv_superres.so'
+        pickFirst 'lib/x86/libopencv_xfeatures2d.so'
+        pickFirst 'lib/x86/libopencv_highgui.so'
+        pickFirst 'lib/x86/libopencv_flann.so'
+        pickFirst 'lib/x86/libjniopencv_videostab.so'
+        pickFirst 'lib/x86/libopencv_objdetect.so'
+        pickFirst 'lib/x86/libopencv_core.so'
+        pickFirst 'lib/x86/libjniopencv_imgproc.so'
+        pickFirst 'lib/x86/libopencv_ml.so'
+        pickFirst 'lib/x86/libjniopencv_shape.so'
+        pickFirst 'lib/x86/libjniopencv_features2d.so'
+        pickFirst 'lib/x86/libjniopencv_bioinspired.so'
+        pickFirst 'lib/x86/libjniopencv_xfeatures2d.so'
+        pickFirst 'lib/x86/libjniopencv_video.so'
+        pickFirst 'lib/x86/libjniopencv_stitching.so'
+        pickFirst 'lib/x86/libjniopencv_photo.so'
+        pickFirst 'lib/x86/libopencv_superres.so'
+        pickFirst 'lib/x86/libopencv_optflow.so'
+        pickFirst 'lib/x86/libjnilept.so'
+        pickFirst 'lib/x86/libjniopencv_videoio.so'
+        pickFirst 'lib/x86/libopencv_face.so'
+        pickFirst 'lib/x86/libjniopencv_imgcodecs.so'
+        pickFirst 'lib/x86/libopencv_imgproc.so'
+        pickFirst 'lib/x86/libopencv_bioinspired.so'
+        pickFirst 'lib/x86/libjniopencv_ximgproc.so'
+        pickFirst 'lib/x86/libopencv_video.so'
+        pickFirst 'lib/x86/libopencv_shape.so'
+        pickFirst 'lib/x86/libjniopencv_face.so'
+        pickFirst 'lib/x86/libopencv_stitching.so'
+        pickFirst 'lib/x86/libopencv_imgcodecs.so'
+        pickFirst 'lib/x86/libjniopencv_optflow.so'
+        pickFirst 'lib/x86/libopencv_calib3d.so'
+        pickFirst 'lib/x86/*'
+        pickFirst 'org/bytedeco/*'
+        pickFirst 'org/bytedeco/javacpp/windows-x86/msvcr120.dll'
+        pickFirst 'org/bytedeco/javacpp/windows-x86_64/msvcr120.dll'
+
+
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude("META-INF/*.kotlin_module")
+        }
+    }
 
 
 dependencies {
 
     implementation 'org.deeplearning4j:deeplearning4j-core:0.8.0'
-    implementation 'org.nd4j:nd4j-native:0.8.0'
-    implementation 'org.nd4j:nd4j-native:0.8.0:android-x86'
-    implementation 'org.nd4j:nd4j-native:0.8.0:android-arm'
+    implementation 'org.nd4j:nd4j-native:0.8.1'
+    implementation 'org.nd4j:nd4j-native:0.8.1:android-x86'
+    implementation 'org.nd4j:nd4j-native:0.8.1:android-arm'
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
@@ -43,16 +126,16 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    implementation (group: 'org.deeplearning4j', name: 'deeplearning4j-core', version: '{{page.version}}') {
+    implementation(group: 'org.deeplearning4j', name: 'deeplearning4j-core', version: '{{page.version}}') {
         exclude group: 'org.bytedeco', module: 'opencv-platform'
         exclude group: 'org.bytedeco', module: 'leptonica-platform'
         exclude group: 'org.bytedeco', module: 'hdf5-platform'
     }
-    implementation  group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6'
-    implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6', classifier: "android-arm"
-    implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6', classifier: "android-arm64"
-    implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6', classifier: "android-x86"
-    implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta6', classifier: "android-x86_64"
+    implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta3'
+    implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta3', classifier: "android-arm"
+    implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta3', classifier: "android-arm64"
+    implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta3', classifier: "android-x86"
+    implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta3', classifier: "android-x86_64"
     implementation group: 'org.bytedeco', name: 'openblas', version: '0.3.7-1.5.2'
     implementation group: 'org.bytedeco', name: 'openblas', version: '0.3.7-1.5.2', classifier: "android-arm"
     implementation group: 'org.bytedeco', name: 'openblas', version: '0.3.7-1.5.2', classifier: "android-arm64"
@@ -68,8 +151,9 @@ dependencies {
     implementation group: 'org.bytedeco', name: 'leptonica', version: '1.78.0-1.5.2', classifier: "android-arm64"
     implementation group: 'org.bytedeco', name: 'leptonica', version: '1.78.0-1.5.2', classifier: "android-x86"
     implementation group: 'org.bytedeco', name: 'leptonica', version: '1.78.0-1.5.2', classifier: "android-x86_64"
-    //testimplementation 'junit:junit:4.12'
-}
+//    testimplementation 'junit:junit:4.12'
+    }
 configurations.all {
     resolutionStrategy.force 'junit:junit:4.12'
 }
+
